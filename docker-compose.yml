@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hotel-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-hotel}
+      POSTGRES_USER: ${POSTGRES_USER:-hotel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hotel_dev_password}
+      # Run backups from within the container without a pg_dump on the host
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Executed once, alphabetically, on first start of an empty data dir.
+      - ./db/migrations:/docker-entrypoint-initdb.d/migrations:ro
+      - ./db/seed:/docker-entrypoint-initdb.d/seed:ro
+      - ./db/init.sh:/docker-entrypoint-initdb.d/00-init.sh:ro
+      # Backups land on the host so they survive `docker compose down -v`.
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hotel} -d ${POSTGRES_DB:-hotel}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  pgdata:
