@@ -1,1 +1,26 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.bin
+tfplan.bin
+plan.txt
+plan-output.txt
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local env / secrets
+.env
+
+# Database dumps - never commit backups
+backups/*
+!backups/.gitkeep
+
+# OS / editor
 .DS_Store
+.idea/
+.vscode/
